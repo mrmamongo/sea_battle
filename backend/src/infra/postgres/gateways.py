@@ -16,7 +16,6 @@ class SAGateway:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-
 class SAUserGateway(SAGateway, UserGateway):
     async def get_by_username(self, username: str):
         return (
@@ -48,8 +47,9 @@ class SAUserGateway(SAGateway, UserGateway):
 
         await self.session.delete(model)
 
+
 class SAGameSessionGateway(SAGateway, GameGateway):
-    async def get_by_uuid(self, uuid: UUID):
+    async def get_by_uuid(self, uuid: str):
         return (
             await self.session.execute(
                 select(GameSessionModel).where(GameSessionModel.id == uuid)

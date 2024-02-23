@@ -4,12 +4,16 @@ import json
 import redis
 import redisjson as rj
 
+from typing import Annotated
 from functools import lru_cache
 from fastapi import FastAPI
 from socketio import AsyncServer, AsyncNamespace, async_mode
 from sanic import Sanic
 from sanic.response import text
 from ../infra/postgres/gateways import SAGameSessionGateway
+
+from dishka.integrations.base import Depends
+from dishka.integrations.fastapi import inject
 
 # initialize a global Redis connection
 r = redis.Redis()
@@ -20,13 +24,13 @@ class GameNamespace(AsyncNamespace):
         # get the game state from Redis as a JSON object
         game_state = rj.get_json(game_id)
         return game_state
-
-    async def on_game_start(self, sid, data):
-        game_session = SAGameSessionGateway()
+    
+    @inject
+    async def on_game_start(self, sid, data, game_session: Annotated[SAGameSessionGateway, Depends()]):
         first_player_games = await game_session.get_by_first_player(sid)
         if first_player_games == 0:
             #Generate uuid
-            self.game_id = str(uuid.uuid4())
+            game_id = str(uuid.uuid4())
             await game_session.create(id=game_id, "Created", first_player=sid)
             #Joining room
             await self.join_room(game_id, sid)
@@ -42,8 +46,8 @@ class GameNamespace(AsyncNamespace):
             # broadcast the updated game state to all clients in the game
             await self.send(room=game_id, json=game_state)
 
-    async def on_accept(self, sid, environ, room_id):
-        game_sessiong = SAGameSessionGateway()
+    @inject
+    async def on_accept(self, sid, environ, room_id, game_session: Annotated[SAGameSessionGateway, Depends()]):
         # check if the user is already in a game room
         if await game_session.get_by_second_player(sid)
             # if so, send a message to the user to confirm they're already in a game
@@ -75,13 +79,9 @@ class GameNamespace(AsyncNamespace):
 
 def setup_socketio(api_prefix: str, fastapi: FastAPI) -> AsyncServer:
     server = socketio.AsyncServer(cors_allowed_origins="*", cors_credentials=True, engineio_logger=False, )
+    server.register_namespace(MyCustomNamespace('/game'))
 
     app = socketio.ASGIApp(server)
-    app.namespace("/game", GameNamespace)
 
     fastapi.mount(api_prefix, app, name="Socket IO")
     return server
-
-if __name__ == "__main__":
-    async_mode("sanic")
-    app.run(host="0.0.0.0", port=8000)
