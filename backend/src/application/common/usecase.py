@@ -27,7 +27,7 @@ class Usecase(Generic[InputDTO, OutputDTO]):
 
     @router.post("/auth")
     @inject
-    async def auth(username: str, user_session: Annotated[SAUserGateway, Depends()]):
+    async def auth(username: str, user_session: Annotated[UserGateway, Depends()]):
         user_session = SAUserGateway()
         user_info = await user_session.get_by_username(username)
         if user_info:
