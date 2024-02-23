@@ -81,7 +81,20 @@ class SAGameSessionGateway(SAGateway, GameGateway):
             await logger.aerror("SA Exception", e)
 
     async def update(self, uuid: UUID, state=None, second_player=None, saved_state=None, last_saved_state=None):
-        pass
-    
+        query = GameSessionModel.update().where(GameSessionModel.id == uuid)
+        if state:
+            query = query.values(state=state)
+        if second_player:
+            query = query.values(second_player=second_player)
+        if saved_state:
+            query = query.values(saved_state=saved_state)
+        if last_saved_state:
+            query = query.values(last_saved_state=last_saved_state)
+        try:
+            self.session.execute(query)
+            await self.session.flush()
+        except Exception as e:
+            await logger.aerror("SA Exception", e)
+
     async def delete(self):
         pass

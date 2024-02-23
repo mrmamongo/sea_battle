@@ -54,6 +54,7 @@ class GameNamespace(AsyncNamespace):
             await self.send(sid, "You are already in a game.", room=sid)
         #else join the room
         else:
+            game_session.update(room_id, second_player=sid)
             await self.join_room(room_id, sid)
             
     async def on_try_hit(self, sid, data):
