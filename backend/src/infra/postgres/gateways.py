@@ -2,7 +2,7 @@ import structlog
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.common.gateways import UserGateway
+from src.application.common.gateways import UserGateway, GameGateway
 from src.infra.postgres.models import UserModel, GameSessionModel
 from uuid import UUID
 
