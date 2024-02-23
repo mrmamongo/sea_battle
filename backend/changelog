@@ -1,0 +1,9 @@
+### Added
+
+- auth route
+- SAGameSessionGateway
+- socketio on_game_start, on_accept, on_disconnect
+
+### Changed
+
+- UserModel (adding token attribute)
