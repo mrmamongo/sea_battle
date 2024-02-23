@@ -17,7 +17,7 @@ class CellDTO:
     ship_size: int
     ship_orientation: str
 
-class BoardDTO:
+class BoardDTO():
     def __init__(self, size=5):
         self.size = size
         #Creating clear board size X size

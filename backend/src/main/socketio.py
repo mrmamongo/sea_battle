@@ -11,6 +11,8 @@ from socketio import AsyncServer, AsyncNamespace, async_mode
 from sanic import Sanic
 from sanic.response import text
 from ../infra/postgres/gateways import SAGameSessionGateway
+from ../redis/models import BoardDTO
+from ../redis/game import BoardShooterDTO
 
 from dishka.integrations.base import Depends
 from dishka.integrations.fastapi import inject
@@ -56,18 +58,20 @@ class GameNamespace(AsyncNamespace):
         else:
             game_session.update(room_id, second_player=sid)
             await self.join_room(room_id, sid)
-            
-    async def on_try_hit(self, sid, data):
+
+    @inject    
+    async def on_try_hit(self, sid, data, game: Annotated[BoardDTO, Depends()]):
         # get the room state from Redis as a JSON object
         room_state = rj.get_json("room:{}".format(sid))
         # randomly broadcast a "hit" or "no hit" message to the room
-        result = random.choice(["hit", "no hit"])
-        await self.send(room=sid, message=result)
+        result = BoardShooterDTO().shoot(game, data.x, data.y)
+        await self.send(room=sid, message=result.state)
         # update the room state in Redis
-        room_state["state"] = result
+        room_state["state"] = result.state
         rj.set_json("room:{}".format(sid), room_state)
 
-    async def on_disconnect(self, sid):
+    @inject
+    async def on_disconnect(self, sid, session: Annotated[SAGameSessionGateway, Depends()]):
         # get the room state from Redis as a JSON object
         room_state = rj.get_json("room:{}".format(sid))
         game_state = self.get_game_state(sid)
