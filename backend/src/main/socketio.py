@@ -77,10 +77,12 @@ class GameNamespace(AsyncNamespace):
         game_state = self.get_game_state(sid)
         if room_state:
             # remove the user from the room
+            await self.send(room=sid, "The game was stopped because one player was disconnected!")
             await self.leave_room(sid)
-            # delete the room state from Redis
-            rj.delete("room:{}".format(sid))
-    
+            
+    @inject
+    async def on_close_game(self, sid, session: Annotated[SAGameSessionGateway, Depends()]):
+        pass
 
 def setup_socketio(api_prefix: str, fastapi: FastAPI) -> AsyncServer:
     server = socketio.AsyncServer(cors_allowed_origins="*", cors_credentials=True, engineio_logger=False, )
