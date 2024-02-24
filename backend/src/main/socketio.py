@@ -56,7 +56,7 @@ class GameNamespace(AsyncNamespace):
             await self.send(sid, "You are already in a game.", room=sid)
         #else join the room
         else:
-            game_session.update(room_id, second_player=sid)
+            await game_session.update(room_id, state='Started', second_player=sid)
             await self.join_room(room_id, sid)
 
     @inject    
@@ -71,14 +71,15 @@ class GameNamespace(AsyncNamespace):
         rj.set_json("room:{}".format(sid), room_state)
 
     @inject
-    async def on_disconnect(self, sid, session: Annotated[SAGameSessionGateway, Depends()]):
+    async def on_disconnect(self, sid, room_id, game_session: Annotated[SAGameSessionGateway, Depends()]):
         # get the room state from Redis as a JSON object
         room_state = rj.get_json("room:{}".format(sid))
         game_state = self.get_game_state(sid)
         if room_state:
             # remove the user from the room
-            await self.send(room=sid, "The game was stopped because one player was disconnected!")
+            await self.send(room=sid, "The game was paused because one player was disconnected!")
             await self.leave_room(sid)
+            await game_session.update(room_id, state='Paused')
             
     @inject
     async def on_close_game(self, sid, session: Annotated[SAGameSessionGateway, Depends()]):
