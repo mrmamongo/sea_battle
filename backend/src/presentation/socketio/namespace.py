@@ -37,7 +37,7 @@ class GameNamespace(AsyncNamespace):
             #Joining room
             await self.join_room(game_id, sid)
             #Sending broadcast message about joining the game
-            await self.send(sid, "You have joined the game.", room=game_id)
+            await self.emit("You have joined the game.", room=game_id)
             # store the game state in Redis as a JSON object
             rj.create_json(game_id, {"state": data, "clients": [sid]})
         else:
@@ -53,7 +53,7 @@ class GameNamespace(AsyncNamespace):
         # check if the user is already in a game room
         if await game_session.get_by_second_player(sid)
             # if so, send a message to the user to confirm they're already in a game
-            await self.send(sid, "You are already in a game.", room=sid)
+            await self.emit("You are already in a game.", room=sid)
         #else join the room
         else:
             await game_session.update(room_id, state='Started', second_player=sid)
@@ -77,7 +77,7 @@ class GameNamespace(AsyncNamespace):
         game_state = self.get_game_state(sid)
         if room_state:
             # remove the user from the room
-            await self.send(room=sid, "The game was paused because one player was disconnected!")
+            await self.emit(room=sid, "The game was paused because one player was disconnected!")
             await self.leave_room(sid)
             await game_session.update(room_id, state='Paused')
             
