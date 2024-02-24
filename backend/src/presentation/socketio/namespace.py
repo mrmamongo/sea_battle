@@ -77,7 +77,7 @@ class GameNamespace(AsyncNamespace):
         game_state = self.get_game_state(sid)
         if room_state:
             # remove the user from the room
-            await self.emit(room=sid, "The game was paused because one player was disconnected!")
+            await self.emit("The game was paused because one player was disconnected!", room=sid)
             await self.leave_room(sid)
             await game_session.update(room_id, state='Paused')
             
