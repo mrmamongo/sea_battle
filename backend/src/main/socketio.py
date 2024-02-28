@@ -1,12 +1,10 @@
 import socketio
-import uuid
 import json
 
 
 from typing import Annotated
 from functools import lru_cache
 from fastapi import FastAPI
-from socketio import AsyncServer, AsyncNamespace, async_mode
 from sanic import Sanic
 from sanic.response import text
 

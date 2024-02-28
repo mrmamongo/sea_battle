@@ -53,24 +53,24 @@ class SAGameSessionGateway(SAGateway, GameGateway):
         return (
             await self.session.execute(
                 select(GameSessionModel).where(GameSessionModel.id == uuid)
-            )
+            ).one_or_none()
         )
     
     async def get_by_first_player(self, uuid: str):
         return (
             await self.session.execute(
                 select(GameSessionModel).where(GameSessionModel.first_player == uuid)
-            )
+            ).one_or_none()
         )
 
     async def get_by_second_player(self, uuid: str):
         return (
             await self.session.execute(
                 select(GameSessionModel).where(GameSessionModel.second_player == uuid)
-            )
+            ).one_or_none()
         )
 
-    async def create(self, uuid: str, state: str, first_player: str):
+    async def create(self, uuid: str, state: str, first_player: str) -> None:
         last_saved_state = time.now()
         model = GameSessionModel(state, first_player, last_saved_state)
 
@@ -80,7 +80,7 @@ class SAGameSessionGateway(SAGateway, GameGateway):
         except Exception as e:
             await logger.aerror("SA Exception", e)
 
-    async def update(self, uuid: UUID, state=None, second_player=None, saved_state=None, last_saved_state=None):
+    async def update(self, uuid: str, state=None, second_player=None, saved_state=None, last_saved_state=None) -> None:
         query = update(GameSessionModel).where(GameSessionModel.id == uuid)
         if state:
             query = query.values(state=state)
@@ -96,5 +96,9 @@ class SAGameSessionGateway(SAGateway, GameGateway):
         except Exception as e:
             await logger.aerror("SA Exception", e)
 
-    async def delete(self):
-        pass
+    async def delete(self, uuid: str) -> None:
+        model = self.session.get(GameSessionModel, uuid)
+        if model is None:
+            return
+         await self.session.delete(model)
+        

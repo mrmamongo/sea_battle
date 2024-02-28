@@ -8,17 +8,11 @@ from dishka.integrations.base import Depends
 from dishka.integrations.fastapi import inject
 
 import uuid
-import redis
-import redisjson as rj
-
 
 class Namespace(DishkaAsyncNamespace):
     @inject
     async def on_connect(self, sid, environ, ):
         await self.enter_room(sid)
-
-# initialize a global Redis connection
-r = redis.Redis()
 
 class GameNamespace(AsyncNamespace):
     @lru_cache(maxsize=128)
@@ -81,6 +75,3 @@ class GameNamespace(AsyncNamespace):
             await self.leave_room(sid)
             await game_session.update(room_id, state='Paused')
             
-    @inject
-    async def on_close_game(self, sid, session: Annotated[SAGameSessionGateway, Depends()]):
-        pass

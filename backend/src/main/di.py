@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher
 from dishka import provide, Provider, Scope
 from redis.asyncio.client import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, AsyncSession, create_async_engine
+from src.infra.postgres.gateways import SAGameSessionGateway, SAUserGateway
 
 from src.application.handle_update import HandleUpdate
 from src.config import Config
@@ -36,6 +37,13 @@ class DIProvider(Provider):
     async def get_redis(self) -> AsyncIterable[Redis]:
         yield Redis.from_url(self.config.redis.url)
 
+    @provide(scope=Scope.REQUEST)
+    async def get_game_session(self) -> AsyncIterable[SAGameSessionGateway]:
+        yield SAGameSessionGateway()
+    
+    @provide(scope=Scope.REQUEST)
+    async def get_user_session(self) -> AsyncIterable[SAUserGateway]:
+        yield SAUserGateway()
 
 class UsecaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
