@@ -160,3 +160,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 .ruff_cache/
+
+src/infra/redis/will_need
+src/infra/redis/test.py
