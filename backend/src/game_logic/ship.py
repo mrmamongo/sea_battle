@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from exceptions import ShipCreation
+
 import random
 
 @dataclass
@@ -12,28 +14,33 @@ class Ship:
 
 
 class Ships:
-    def __init__(self):
+    def __init__(self, size, tries_to_generate=15, amount_3d=0, amount_2d=2, amount_1d=3):
+        self.size = size
+        self.tries_to_generate = tries_to_generate
         self.ships_objs = list()
-        self.generate()
-    
-    def generate(self, amount_3d=0, amount_2d=2, amount_1d=3):
-        for i in range(amount_3d):
-            self.ships_objs.append(self.__generate_3d_ship())
-        
-        for i in range(amount_2d):
-            self.ships_objs.append(self.__generate_2d_ship())
-        
-        for i in range(amount_1d):
-            self.ships_objs.append(self.__gererate_1d_ship())
+        self.amount_3d = amount_3d
+        self.amount_2d = amount_2d
+        self.amount_1d = amount_1d
+        self.__generate()
 
     def get_by_pos(self, x: int, y: int):
         for inx, ship in enumerate(self.ships_objs):
             if ship.x_start <= x <= ship.x_end and ship.y_start <= y <= ship.y_end:
                 return (inx, ship)
             
-    def __overlap(self, x_start: int, y_start: int, x_end: int, y_end: int) -> bool:
+    def __generate(self):
+        for i in range(self.amount_3d):
+            self.ships_objs.append(self.__generate_3d_ship())
+        
+        for i in range(self.amount_2d):
+            self.ships_objs.append(self.__generate_2d_ship())
+        
+        for i in range(self.amount_1d):
+            self.ships_objs.append(self.__gererate_1d_ship())
+            
+    def __overlap(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         for ship in self.ships_objs:
-            if (ship.x_start - 1 <= x_start <= ship.x_end + 2) and (ship.y_start - 1 <= y_start <= ship.y_end + 2) and (ship.x_start - 1 <= x_end <= ship.x_end + 2) and (ship.y_start - 1 <= y_end <= ship.y_end + 2):
+            if (ship.x_start - 1 <= x1 <= ship.x_end + 1) and (ship.y_start - 1 <= y1 <= ship.y_end + 1) and (ship.x_start - 1 <= x2 <= ship.x_end + 1) and (ship.y_start - 1 <= y2 <= ship.y_end + 1):
                 return True
         return False
     
@@ -41,33 +48,37 @@ class Ships:
         pass
     
     def __generate_2d_ship(self) -> Ship:
-        while True:
-            x_start = random.randint(0, self.size)
-            y_start = random.randint(0, self.size)
-            pos = random.choice('h', 'v')
+        for i in range(self.tries_to_generate):
+            x_start = random.randint(0, self.size-1)
+            y_start = random.randint(0, self.size-1)
+            x_end = 0
+            y_end = 0
+            pos = random.choice(['h', 'v'])
             
-            if 'h':
-                if (x_start <= self.size - 2):
-                    x_end = x_start + 1
-                else:
-                    x_start -= 1
-                    x_end = x_start + 1
-            else:
+            if pos == 'h':
                 if (y_start <= self.size - 2):
                     y_end = y_start + 1
                 else:
                     y_start -= 1
                     y_end = y_start + 1
-            
+                x_end = x_start
+            else:
+                if (x_start <= self.size - 2):
+                    x_end = x_start + 1
+                else:
+                    x_start -= 1
+                    x_end = x_start + 1
+                y_end = y_start
+                
             if not(self.__overlap(x_start, y_start, x_end, y_end)):
-                break
-        return Ship(x_start, y_start, x_end, y_end, '2d', pos)
-    
+                return Ship(x_start, y_start, x_end, y_end, '2d', pos)
+        raise ShipCreation("Field is too small to place ships!")
+            
     def __gererate_1d_ship(self) -> Ship:
-        while True:
-            x_start = random.randint(0, self.size)
-            y_start = random.randint(0, self.size)
+        for i in range(self.tries_to_generate):
+            x_start = random.randint(0, self.size-1)
+            y_start = random.randint(0, self.size-1)
             pos = 'h'
             if not(self.__overlap(x_start, y_start, x_start, y_start)):
-                break
-        return Ship(x_start, y_start, x_start, y_start, '1d', pos)
+                return Ship(x_start, y_start, x_start, y_start, '1d', pos)
+        raise ShipCreation("Field is too small to place ships!")
