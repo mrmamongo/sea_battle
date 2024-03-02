@@ -1,7 +1,17 @@
 from dataclasses import dataclass
 from exceptions import ShipCreation
+from enum import Enum
 
 import random
+
+class Position(str, Enum):
+    HORIZONTAL = 'horizontal'
+    VERTICAL = 'vertical'
+
+class Kind(str, Enum):
+    SINGLE_DECK = '1d'
+    DOUBLE_DECK = '2d'
+    TRIPLE_DECK = '3d'
 
 @dataclass
 class Ship:
@@ -9,8 +19,8 @@ class Ship:
     y_start: int
     x_end: int
     y_end: int
-    type: str
-    pos: str
+    type: Kind
+    pos: Position
 
 
 class Ships:
@@ -53,9 +63,9 @@ class Ships:
             y_start = random.randint(0, self.size-1)
             x_end = 0
             y_end = 0
-            pos = random.choice(['h', 'v'])
+            pos = random.choice(['horizontal', 'vertical'])
             
-            if pos == 'h':
+            if pos == 'horizontal':
                 if (y_start <= self.size - 2):
                     y_end = y_start + 1
                 else:
