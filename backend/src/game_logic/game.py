@@ -7,10 +7,10 @@ from exceptions import GameTry
 import random
 
 class Game:
-    def __init__(self, size=10):
+    def __init__(self, size=10, amount_3d=0, amount_2d=2, amount_1d=3):
         self.size = size
         self.board = BoardDTO(size)
-        self.ships = Ships(size, amount_2d=0, amount_1d=1)
+        self.ships = Ships(size, amount_2d=amount_2d, amount_1d=amount_1d)
         self.game_state = 'Started'
         self.__place_ships()
 

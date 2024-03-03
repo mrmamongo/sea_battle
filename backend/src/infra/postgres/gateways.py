@@ -100,5 +100,5 @@ class SAGameSessionGateway(SAGateway, GameGateway):
         model = self.session.get(GameSessionModel, uuid)
         if model is None:
             return
-         await self.session.delete(model)
+        await self.session.delete(model)
         
