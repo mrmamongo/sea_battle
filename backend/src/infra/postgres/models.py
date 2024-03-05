@@ -15,6 +15,7 @@ class UserModel(BaseModel):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(primary_key=True, unique=True)
+    token: Mapped[str] = mapped_column(unique=True)
 
 
 class GameSessionModel(BaseModel):

@@ -14,7 +14,7 @@ def setup_fastapi(config: ApiConfig, token: str) -> FastAPI:
         allow_methods=config.allow_methods,
         allow_headers=config.allow_headers,
     )
-
+    
     setup_routes(app, token)
 
     return app
