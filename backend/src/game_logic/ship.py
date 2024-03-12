@@ -50,7 +50,7 @@ class Ships:
             
     def __overlap(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         for ship in self.ships_objs:
-            if (ship.x_start - 1 <= x1 <= ship.x_end + 1) and (ship.y_start - 1 <= y1 <= ship.y_end + 1) and (ship.x_start - 1 <= x2 <= ship.x_end + 1) and (ship.y_start - 1 <= y2 <= ship.y_end + 1):
+            if ((ship.x_start - 1 <= x1 <= ship.x_end + 1) or (ship.x_start - 1 <= x2 <= ship.x_end + 1)) and ((ship.y_start - 1 <= y2 <= ship.y_end + 1) or (ship.y_start - 1 <= y1 <= ship.y_end + 1)):
                 return True
         return False
     
