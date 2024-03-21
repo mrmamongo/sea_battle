@@ -1,17 +1,19 @@
 import { makeAutoObservable } from 'mobx';
-import { observer } from 'mobx-react-lite';
-import { UserStore } from './User';
-import { SeaBattleStore } from './SeaBattle';
+import { UserStore } from './User.store.ts';
+import { SeaBattleStore } from './SeaBattle.store.ts';
+import {io, Socket} from "socket.io-client";
 
-class GameStore {
+export class GameStore {
     opponentNickname = '';
     currentTurn = '';
     userBattlefield = new SeaBattleStore();
     opponentBattlefield = new SeaBattleStore();
 
+    socket: Socket
     constructor(userStore: UserStore) {
         makeAutoObservable(this);
         this.currentTurn = userStore.nickname;
+        this.socket = io("ws://localhost:3000");
     }
 
     setOpponentNickname(nickname: string) {
@@ -29,24 +31,8 @@ class GameStore {
     setOpponentBattlefield(battlefield: SeaBattleStore) {
         this.opponentBattlefield = battlefield;
     }
+
+    disconnect() {
+        this.socket.disconnect();
+    }
 }
-
-const gameStore = new GameStore(userStore);
-
-const GameStoreProvider: React.FC = ({ children }) => {
-    return (
-        <GameStoreContext.Provider value={gameStore}>
-            {children}
-            </GameStoreContext.Provider>
-    );
-};
-
-const GameStoreConsumer = observer(({ children }) => {
-    const gameStore = useContext(GameStoreContext);
-
-    return children(gameStore);
-});
-
-export { gameStore, GameStoreProvider, GameStoreConsumer };
-
-const GameStoreContext = createContext(gameStore);

@@ -18,4 +18,3 @@ def setup_fastapi(config: ApiConfig, token: str) -> FastAPI:
     setup_routes(app, token)
 
     return app
-

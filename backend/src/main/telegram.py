@@ -22,6 +22,8 @@ async def setup_dispatcher(config: TelegramConfig) -> tuple[Bot, Dispatcher]:
 
     await bot.delete_webhook(drop_pending_updates=True)
     if await bot.set_webhook(f"{config.webhook_base}/api/{bot.token}"):
-        await logger.ainfo("Bot started on hook: %s", f"{config.webhook_base}/api/{bot.token}")
+        await logger.ainfo(
+            "Bot started on hook: %s", f"{config.webhook_base}/api/{bot.token}"
+        )
 
     return bot, dp

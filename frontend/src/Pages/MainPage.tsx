@@ -1,10 +1,12 @@
 import {Box, AppBar, Button, Toolbar, Typography, Container, CssBaseline} from "@mui/material";
 import {Field} from "../Components/Field/Field.tsx";
 import {Statistics} from "../Components/Statistics.tsx";
-import {useStore} from "../Models/Root.ts";
 import {LoginModal} from "../Components/LoginModal.tsx";
 import {useEffect, useState} from "react";
-function MainPage() {
+import {observer} from "mobx-react-lite";
+import {useStore} from "../Models/Root.ts";
+
+const MainPage = observer(() => {
     const {user, opponent} = useStore();
 
     const [loginModalOpen, setLoginModalOpen] = useState<boolean>(user.authenticated);
@@ -15,7 +17,7 @@ function MainPage() {
 
     useEffect(() => {
         console.log(user);
-    }, [])
+    }, [user])
 
     return (
         <>
@@ -48,6 +50,6 @@ function MainPage() {
             </Box>
         </>
     )
-}
+})
 
-export default MainPage
+export default MainPage;

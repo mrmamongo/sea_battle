@@ -1,8 +1,6 @@
 [api]
 project_name = "Sea Battle Backend"
-
 url = "http://localhost:3001"
-
 cors_origins = ["*"]
 allow_credentials = true
 allow_methods = ["*"]
@@ -20,4 +18,7 @@ locales_dir = "./locales"
 level = "DEBUG"
 
 [database]
-dsn = "postgresql+asyncpg://superuser:superpassword@localhost:5432/superuser"
+dsn = "postgresql+asyncpg://postgres:postgres@localhost:5432/"
+
+[redis]
+url = "redis://localhost:6379/0"

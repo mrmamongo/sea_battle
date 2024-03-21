@@ -4,16 +4,15 @@ from pathlib import Path
 
 import structlog
 import uvicorn
-from dishka.integrations.aiogram import setup_dishka
-from dishka.integrations.fastapi import DishkaApp
+from dishka import make_async_container
+from dishka.integrations.fastapi import setup_dishka as setup_dishka_fastapi
 
 from src.config import Config, get_config
 from src.infra.log import setup_logging
 from src.main.di import DIProvider, UsecaseProvider
-from src.main.socketio import setup_socketio
-from src.main.telegram import setup_dispatcher
+from src.main.pubsub import setup_socketio
 from src.main.web import setup_fastapi
-from src.presentation.socketio.namespace import Namespace
+from src.presentation.socketio_presenters.namespace import GameNamespace
 
 logger = structlog.get_logger(__name__)
 
@@ -27,19 +26,31 @@ async def run() -> None:
     setup_logging(config.logging)
 
     await logger.ainfo("Initializing aiogram")
-    bot, dispatcher = await setup_dispatcher(config.telegram)
-    providers = [DIProvider(config, bot, dispatcher), UsecaseProvider()]
+    # bot, dispatcher = await setup_dispatcher(config.telegram)
+    providers = [DIProvider(config), UsecaseProvider()]
+    container = make_async_container(*providers)
 
-    setup_dishka(providers, dispatcher)
+    # setup_dishka_aiogram(container, dispatcher)
     await logger.ainfo("Initializing fastapi")
     fastapi = setup_fastapi(config.api, config.telegram.token)
     await logger.ainfo("Starting service")
     socketio = setup_socketio("/api/v1", fastapi)
-    socketio.register_namespace(Namespace("/", providers))
+    socketio.register_namespace(GameNamespace("/game", container))
 
-    await uvicorn.Server(
-        config=uvicorn.Config(app=DishkaApp(providers, fastapi), host=config.api.host, port=config.api.port,
-                              workers=config.api.workers, )).serve()
+    setup_dishka_fastapi(container, fastapi)
+
+    try:
+        await uvicorn.Server(
+            config=uvicorn.Config(
+                app=fastapi,
+                host=config.api.host,
+                port=config.api.port,
+                workers=config.api.workers,
+                reload=True,
+            )
+        ).serve()
+    finally:
+        await container.close()
 
 
 def main() -> None:

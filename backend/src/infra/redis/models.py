@@ -1,30 +1,21 @@
+import enum
 from dataclasses import dataclass
 
 
 @dataclass
-class Cell:
-    pass
+class UserSession:
+    token: str
+    username: str
 
 
-FieldCells = tuple[
-    tuple[Cell, Cell, Cell, Cell, Cell],
-    tuple[Cell, Cell, Cell, Cell, Cell],
-    tuple[Cell, Cell, Cell, Cell, Cell],
-    tuple[Cell, Cell, Cell, Cell, Cell],
-    tuple[Cell, Cell, Cell, Cell, Cell],
-]
+class UserTurn(enum.StrEnum):
+    first = "first"
+    second = "second"
 
 
 @dataclass
-class Field:
-    cells: FieldCells
-
-
-@dataclass
-class SessionState:
-    pass
-
-
-@dataclass
-class ActiveSession:
-    pass
+class GameSession:
+    game_id: str
+    players: tuple[str, str]
+    boards: tuple
+    turn: UserTurn

@@ -1,4 +1,4 @@
-import {Containment} from "../../Models/types.tsx";
+import {Containment} from "../../Models/types.ts";
 import {ReactSVG} from "react-svg";
 import {Fire} from "./img/fire.tsx";
 import {Cross} from "./img/cross.tsx";

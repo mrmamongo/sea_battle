@@ -1,17 +1,13 @@
 import { makeAutoObservable } from "mobx";
-import io, {Socket} from "socket.io-client";
 import {CellState, CellUpdate} from "./types.ts";
 
-class SeaBattleStore {
+export class SeaBattleStore {
     grid: CellState[][] = Array(10)
         .fill(null)
         .map(() => Array(10).fill(CellState.cross));
-    socket: Socket;
 
     constructor() {
         makeAutoObservable(this);
-        this.socket = io("http://localhost:3001", { autoConnect: true });
-        this.socket.on("cell-update", this.handleCellUpdate);
     }
 
     handleCellUpdate = ({ x, y, state }: CellUpdate) => {
@@ -28,5 +24,3 @@ class SeaBattleStore {
         this.socket.disconnect();
     }
 }
-
-export default SeaBattleStore;

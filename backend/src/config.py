@@ -16,9 +16,9 @@ class ApiConfig:
     # templates_dir: str
     workers: int = 1
     cors_origins: list[str] = field(default_factory=list)
-    allow_headers = None
-    allow_methods = None
-    allow_credentials = None
+    allow_headers: list[str] = field(default_factory=list)
+    allow_methods: list[str] = field(default_factory=list)
+    allow_credentials: bool = True
 
 
 class StorageType(Enum):
@@ -29,7 +29,7 @@ class StorageType(Enum):
 @dataclass(slots=True)
 class TelegramConfig:
     token: str
-    webhook_base: str
+    webhook_base: str | None = None
     storage_args: dict[str, str] | None = None
     storage: StorageType = StorageType.inmemory
 

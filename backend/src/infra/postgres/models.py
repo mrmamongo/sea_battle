@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 import sqlalchemy
-from sqlalchemy import ForeignKey, JSON
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -21,12 +21,15 @@ class GameSessionModel(BaseModel):
     __tablename__ = "game_sessions"
 
     id: Mapped[UUID] = mapped_column(sqlalchemy.UUID(as_uuid=True), primary_key=True)
-    state: Mapped[str] = mapped_column()
+    title: Mapped[str] = mapped_column(unique=True)
+    state: Mapped[str] = mapped_column(default="created", nullable=False)
 
     first_player: Mapped[str] = mapped_column(ForeignKey("users.username"))
     second_player: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.username"), nullable=True
     )
 
-    saved_state: Mapped[Optional[JSON]] = mapped_column(nullable=True)
-    last_saved_state: Mapped[datetime.datetime] = mapped_column()
+    saved_state: Mapped[Optional[str]] = mapped_column(nullable=True)
+    last_saved_state: Mapped[datetime.datetime] = mapped_column(
+        nullable=False, default=datetime.datetime.now, onupdate=datetime.datetime.now
+    )
